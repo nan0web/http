@@ -14,8 +14,8 @@ test('bodyParser handles JSON', async () => {
 	req.push(body)
 	req.push(null)
 
-	await bodyParser(req, {})
+	const parser = bodyParser()
+
+	await parser(req, {})
 	assert.deepEqual(req.body, { test: 'value' })
 })
-
-// @todo add more tests

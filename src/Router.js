@@ -81,10 +81,7 @@ class Router {
 	 */
 	addRoute(method, path, handler) {
 		const pattern = this.pathToPattern(path)
-		this.routes[method].push({
-			pattern,
-			handler: this.#composeHandler(handler)
-		})
+		this.routes[method].push({ pattern, handler })
 	}
 
 	/**
@@ -95,25 +92,6 @@ class Router {
 	use(middleware) {
 		this.middlewares.push(middleware)
 		return this
-	}
-
-	/**
-	 * Compose middlewares with route handler
-	 * @param {Function} handler
-	 * @returns {Function}
-	 */
-	#composeHandler(handler) {
-		return async (req, res) => {
-			let index = -1
-			const dispatch = async (i) => {
-				if (i <= index) throw new Error('next() called multiple times')
-				index = i
-				const fn = i === this.middlewares.length ? handler : this.middlewares[i]
-				if (!fn) return
-				await fn(req, res, () => dispatch(i + 1))
-			}
-			await dispatch(0)
-		}
 	}
 
 	/**
@@ -189,7 +167,7 @@ class Router {
 			req.params = match.params
 			await match.handler(req, res)
 		} else {
-			await this.#composeHandler(notFoundHandler)(req, res)
+			await notFoundHandler(req, res)
 		}
 	}
 }

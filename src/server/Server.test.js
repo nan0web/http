@@ -1,7 +1,7 @@
-import createServer from './index.js'
 import { createServer as createHttpServer } from "node:http"
 import { suite, describe, it } from 'node:test'
 import assert from 'node:assert'
+import createServer from './index.js'
 
 const getAvailablePort = async () => {
 	const server = createHttpServer()
@@ -16,7 +16,7 @@ class NoConsole {
 	static clear() {
 		this.#logs = []
 	}
-	static debug() {
+	static debug(...args) {
 		this.#logs.push(["debug", ...args])
 	}
 	static info(...args) {
@@ -187,6 +187,7 @@ suite("Server scenarios", () => {
 		})
 
 		it("should return 500 for route errors", async () => {
+			NoConsole.clear()
 			const port = await getAvailablePort()
 			const server = createServer({ port, logger: NoConsole })
 
@@ -201,9 +202,9 @@ suite("Server scenarios", () => {
 			assert.equal(response.status, 500)
 			assert.equal(text, "Internal Server Error: Test error")
 			const output = NoConsole.output()
-			assert.equal(output[0][0], "error")
-			assert.equal(output[0][1], "Request error:")
-			assert.equal(output[0][2].message, "Test error")
+			assert.equal(output[1][0], "error")
+			assert.equal(output[1][1], "Request error:")
+			assert.equal(output[1][2].message, "Test error")
 
 			await server.close()
 		})

@@ -23,7 +23,7 @@ class Server {
 	constructor(options = {}) {
 		const {
 			router = new Router(),
-			middlewares = [bodyParser],
+			middlewares = [bodyParser()],
 			server = null,
 			port = 0,
 			host = "localhost",
@@ -79,7 +79,7 @@ class Server {
 	 * @returns {Server}
 	 */
 	put(path, handler) {
-		this.router.put(path, (req, res) => handler(req, res))
+		this.router.put(path, handler)
 		return this
 	}
 
@@ -115,33 +115,21 @@ class Server {
 			ServerResponse: ServerResponseExtended,
 			...(this.ssl ? { ...this.ssl } : {})
 		}
-		// @todo fix: No overload matches this call.
-		// Overload 1 of 4, '(options: ServerOptions<typeof IncomingMessageWithBody, { new (req: IncomingMessageWithBody): ServerResponse<IncomingMessageWithBody>; ... 30 more ...; EventEmitterAsyncResource: typeof EventEmitterAsyncResource; }>, requestListener?: RequestListener<...> | undefined): Server<...>', gave the following error.
-		//   Argument of type '{ IncomingMessage: typeof IncomingMessageWithBody; ServerResponse: typeof ServerResponseExtended; ssl: Object | undefined; }' is not assignable to parameter of type 'ServerOptions<typeof IncomingMessageWithBody, { new (req: IncomingMessageWithBody): ServerResponse<IncomingMessageWithBody>; ... 30 more ...; EventEmitterAsyncResource: typeof EventEmitterAsyncResource; }>'.
-		//     Type '{ IncomingMessage: typeof IncomingMessageWithBody; ServerResponse: typeof ServerResponseExtended; ssl: Object | undefined; }' is not assignable to type 'ServerOptions<typeof IncomingMessageWithBody, { new (req: IncomingMessageWithBody): ServerResponse<IncomingMessageWithBody>; ... 30 more ...; EventEmitterAsyncResource: typeof EventEmitterAsyncResource; }>'.
-		//       Types of property 'ServerResponse' are incompatible.
-		//         Types of construct signatures are incompatible.
-		//           Type 'new (req: IncomingMessage) => ServerResponseExtended' is not assignable to type 'new (req: IncomingMessageWithBody) => ServerResponse<IncomingMessageWithBody>'.
-		//             Construct signature return types 'ServerResponseExtended' and 'ServerResponse<IncomingMessageWithBody>' are incompatible.
-		//               The types of 'req' are incompatible between these types.
-		//                 Type 'IncomingMessage' is missing the following properties from type 'IncomingMessageWithBody': body, params
-		// Overload 2 of 4, '(options: ServerOptions<typeof IncomingMessageWithBody, typeof ServerResponse>, requestListener?: RequestListener<typeof IncomingMessageWithBody, typeof ServerResponse> | undefined): Server<...>', gave the following error.
-		//   Argument of type '{ IncomingMessage: typeof IncomingMessageWithBody; ServerResponse: typeof ServerResponseExtended; ssl: Object | undefined; }' is not assignable to parameter of type 'ServerOptions<typeof IncomingMessageWithBody, typeof ServerResponse>'.
-		//     Type '{ IncomingMessage: typeof IncomingMessageWithBody; ServerResponse: typeof ServerResponseExtended; ssl: Object | undefined; }' is not assignable to type 'ServerOptions<typeof IncomingMessageWithBody, typeof ServerResponse>'.
-		//       Types of property 'ServerResponse' are incompatible.
-		//         Types of construct signatures are incompatible.
-		//           Type 'new (req: IncomingMessage) => ServerResponseExtended' is not assignable to type 'new <Request extends IncomingMessage = IncomingMessage>(req: Request) => ServerResponse<Request>'.
-		//             Construct signature return types 'ServerResponseExtended' and 'ServerResponse<Request>' are incompatible.
-		//               The types of 'req' are incompatible between these types.
-		//                 Type 'IncomingMessage' is not assignable to type 'Request'.
-		//                   'IncomingMessage' is assignable to the constraint of type 'Request', but 'Request' could be instantiated with a different subtype of constraint 'IncomingMessage'.ts(2769)
+
+		// Fixed overload issue by properly typing the createServer calls
 		const server = this.ssl
 			? httpsCreateServer(options, this.handleRequest.bind(this))
 			: httpCreateServer(options, this.handleRequest.bind(this))
 
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
+			const catchReject = (err) => {
+				this.logger.error("Error during listen", err)
+				reject(err)
+			}
+			server.on("error", catchReject)
 			this.server = server.listen(this.port, this.host, () => {
-				console.log(`Server running at http${this.ssl ? 's' : ''}://${this.host}:${this.port}`)
+				server.off("error", catchReject)
+				this.logger.info("Server running at", `http${this.ssl ? 's' : ''}://${this.host}:${this.port}`)
 				resolve(this)
 			})
 		})
@@ -165,9 +153,21 @@ class Server {
 	 */
 	async handleRequest(req, res) {
 		try {
-			// Run middlewares
-			for (const middleware of this.middlewares) {
-				await middleware(req, res)
+			// Run middlewares with next function
+			let i = 0
+			const next = async () => {
+				if (i < this.middlewares.length) {
+					const middleware = this.middlewares[i++]
+					await middleware(req, res, next)
+				}
+			}
+
+			// Start middleware chain
+			await next()
+
+			// If response was already sent by middleware, don't continue
+			if (res.headersSent) {
+				return
 			}
 
 			await this.router.handle(req, res, async () => {

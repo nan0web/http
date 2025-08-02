@@ -6,21 +6,14 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.js",
+		"./client": "./src/client/index.js",
 		"./errors": "./src/errors/index.js",
+		"./middlewares": "./src/middlewares/index.js",
+		"./server": "./src/server/index.js",
 		"./types": "./src/types/index.js"
 	},
 	"scripts": {
-		"build": "nanoweb-mono build",
-		"clean": "nanoweb-mono clean",
-		"lint": "nanoweb-mono lint",
-		"release": "nanoweb-mono release",
-		"test": "vitest --run",
-		"ws:check": "nanoweb-mono workspace",
-		"ws:workspace": "nanoweb-mono workspace workspace",
-		"ws:latest": "nanoweb-mono workspace latest",
-		"ws:init": "nanoweb-mono workspace init",
-		"dev": "vite --host nanoweb-http.nw",
-		"preview": "vite preview --host nanoweb-http.preview.nw",
+		"test": "node --test",
 		"prepare": "husky"
 	},
 	"keywords": [
@@ -39,7 +32,6 @@
 		"@eslint/js": "^9.27.0",
 		"eslint": "^9.27.0",
 		"globals": "^16.1.0",
-		"husky": "^9.1.7",
-		"nanoweb-mono": "^1.8.2"
+		"husky": "^9.1.7"
 	}
 }

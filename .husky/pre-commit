@@ -1,2 +1,1 @@
-pnpm ws:check
-pnpm test
+npm run test

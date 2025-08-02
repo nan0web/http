@@ -15,6 +15,11 @@ class HTTPError extends Error {
 		this.status = status
 		this.name = 'HTTPError'
 	}
+	toString() {
+		return [
+			this.name, "[", this.status, "]", this.message,
+		].join(" ") + "\n" + this.stack
+	}
 }
 
 export default HTTPError

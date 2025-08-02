@@ -1,152 +1,106 @@
-import { test } from 'node:test'
-import assert from 'node:assert'
+import { describe, it } from 'node:test'
+import { strict as assert } from 'node:assert'
 import Router from './Router.js'
+import ServerResponseExtended from './types/ServerResponseExtended.js'
 import { IncomingMessageWithBody } from './types/IncomingMessageWithBody.js'
-import { ServerResponse } from 'http'
-import { Socket } from 'net'
 
-test('Router matches parameter routes', () => {
-	const router = new Router()
-	let capturedParams = null
+describe('Router', () => {
+	it('should add routes for different HTTP methods', () => {
+		const router = new Router()
+		const handler = () => {}
 
-	router.get('/users/:id', (req) => {
-		capturedParams = req.params
+		router.get('/test', handler)
+		router.post('/test', handler)
+		router.put('/test', handler)
+		router.delete('/test', handler)
+		router.patch('/test', handler)
+
+		assert.equal(router.routes.GET.length, 1)
+		assert.equal(router.routes.POST.length, 1)
+		assert.equal(router.routes.PUT.length, 1)
+		assert.equal(router.routes.DELETE.length, 1)
+		assert.equal(router.routes.PATCH.length, 1)
 	})
 
-	const socket = new Socket()
-	const mockReq = new IncomingMessageWithBody(socket)
-	mockReq.method = 'GET'
-	mockReq.url = '/users/123'
+	it('should convert path to regex pattern with parameters', () => {
+		const router = new Router()
+		const pattern = router.pathToPattern('/user/:id/profile/:section')
 
-	const mockRes = new ServerResponse(mockReq)
-
-	router.handle(mockReq, mockRes, () => { })
-	assert.deepEqual(capturedParams, { id: '123' })
-})
-
-test('Router matches wildcard routes', () => {
-	const router = new Router()
-	let capturedUrl = null
-
-	router.get('/files/*', (req) => {
-		capturedUrl = req.url
+		assert.ok(pattern.regex instanceof RegExp)
+		assert.ok(pattern.params.id)
+		assert.ok(pattern.params.section)
+		assert.equal(Object.keys(pattern.params).length, 2)
 	})
 
-	const mockReq = { method: 'GET', url: '/files/docs/readme.txt' }
-	const mockRes = { end: () => { } }
+	it('should match routes correctly and extract parameters', () => {
+		const router = new Router()
+		const handler = () => {}
+		router.addRoute('GET', '/user/:id/profile/:section', handler)
 
-	router.handle(mockReq, mockRes, () => { })
-	assert.equal(capturedUrl, '/files/docs/readme.txt')
-})
-
-test('Router calls notFoundHandler for unmatched routes', () => {
-	const router = new Router()
-	let notFoundCalled = false
-
-	const mockReq = { method: 'GET', url: '/not-found' }
-	const mockRes = { end: () => { } }
-
-	router.handle(mockReq, mockRes, () => {
-		notFoundCalled = true
+		const match = router.matchRoute('GET', '/user/123/profile/settings')
+		assert.ok(match)
+		assert.equal(match.handler, handler)
+		assert.equal(match.params.id, '123')
+		assert.equal(match.params.section, 'settings')
 	})
 
-	assert(notFoundCalled)
-})
+	it('should handle middleware registration', () => {
+		const router = new Router()
+		const middleware = () => {}
 
-test('Router executes middlewares in order', async () => {
-	const router = new Router()
-	const calls = []
+		router.use(middleware)
 
-	router.use(async (req, res, next) => {
-		calls.push('middleware 1 start')
-		await next()
-		calls.push('middleware 1 end')
+		assert.equal(router.middlewares.length, 1)
+		assert.equal(router.middlewares[0], middleware)
 	})
 
-	router.use(async (req, res, next) => {
-		calls.push('middleware 2 start')
-		await next()
-		calls.push('middleware 2 end')
-	})
-
-	router.get('/test', () => calls.push('route handler'))
-
-	const mockReq = { method: 'GET', url: '/test' }
-	const mockRes = { end: () => {} }
-
-	await router.handle(mockReq, mockRes, () => {})
-	assert.deepEqual(calls, [
-		'middleware 1 start',
-		'middleware 2 start',
-		'route handler',
-		'middleware 2 end',
-		'middleware 1 end'
-	])
-})
-
-test('Router middleware can modify request', async () => {
-	const router = new Router()
-	let modifiedValue = null
-
-	router.use((req, res, next) => {
-		req.customValue = 'modified'
-		next()
-	})
-
-	router.get('/test', (req) => {
-		modifiedValue = req.customValue
-	})
-
-	const mockReq = { method: 'GET', url: '/test' }
-	const mockRes = { end: () => {} }
-
-	await router.handle(mockReq, mockRes, () => {})
-	assert.equal(modifiedValue, 'modified')
-})
-
-test('Router middleware can short-circuit requests', async () => {
-	const router = new Router()
-	let handlerCalled = false
-
-	router.use((req, res, next) => {
-		res.end('stopped by middleware')
-	})
-
-	router.get('/test', () => {
-		handlerCalled = true
-	})
-
-	const mockReq = { method: 'GET', url: '/test' }
-	let responseEnded = false
-	const mockRes = {
-		end: (data) => {
-			responseEnded = data
+	it('should handle request with matching route', async () => {
+		const router = new Router()
+		let called = false
+		const handler = async () => {
+			called = true
 		}
-	}
+		const notFoundHandler = async () => {
+			called = false
+		}
 
-	await router.handle(mockReq, mockRes, () => {})
-	assert.equal(responseEnded, 'stopped by middleware')
-	assert.equal(handlerCalled, false)
-})
+		router.get('/hello', handler)
 
-test('Router applies middlewares to not found handler', async () => {
-	const router = new Router()
-	const calls = []
+		const req = { method: 'GET', url: '/hello' }
+		const res = {}
 
-	router.use((req, res, next) => {
-		calls.push('middleware')
-		next()
+		await router.handle(req, res, notFoundHandler)
+
+		assert.ok(called)
 	})
 
-	let notFoundCalled = false
-	const notFoundHandler = () => {
-		notFoundCalled = true
-	}
+	it('should call notFoundHandler for unmatched routes', async () => {
+		const router = new Router()
+		let notFoundCalled = false
+		const notFoundHandler = async () => {
+			notFoundCalled = true
+		}
 
-	const mockReq = { method: 'GET', url: '/not-found' }
-	const mockRes = { end: () => {} }
+		const req = { method: 'GET', url: '/unknown' }
+		const res = {}
 
-	await router.handle(mockReq, mockRes, notFoundHandler)
-	assert.equal(calls[0], 'middleware')
-	assert.equal(notFoundCalled, true)
+		await router.handle(req, res, notFoundHandler)
+
+		assert.ok(notFoundCalled)
+	})
+
+	it('should handle invalid request gracefully', async () => {
+		const router = new Router()
+		let notFoundCalled = false
+		const notFoundHandler = async () => {
+			notFoundCalled = true
+		}
+
+		const req = {}
+		const res = {}
+
+		await router.handle(req, res, notFoundHandler)
+
+		assert.ok(notFoundCalled)
+	})
 })
