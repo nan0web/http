@@ -1,181 +1,161 @@
-# Nanoweb HTTP
-Nanoweb HTTP is a powerful Node.js package that provides a modern, browser-like fetch API for making HTTP requests in Node.js environments.  
+# @nanoweb/http
+
+A lightweight HTTP library for JavaScript applications that provides utilities for working with HTTP messages, headers, status codes, and errors.
 
 ## Features
-- Browser-like fetch API with full support for GET, POST, PUT, DELETE, PATCH, HEAD, and OPTIONS methods
-- Custom Response class with methods like `.text()`, `.json()`, `.arrayBuffer()`, and `.stream()`
-- APIRequest class for simplified API interactions with default options
-- Support for HTTP/1.1, HTTP/2, and HTTPS protocols
-- Automatic Content-Type header handling based on request body
-- Robust error handling for network and HTTP errors
-- Full TypeScript support with type definitions
+
+- HTTP status code utilities with descriptive names
+- HTTP headers management with flexible input formats
+- HTTP message classes for requests and responses
+- Custom error classes for HTTP and abort errors
+- Works in both browser and Node.js environments
+- Fully typed with JSDoc annotations
+- Zero dependencies
 
 ## Installation
-Ensure you have Node.js installed, then install the package using npm:  
-```sh
-npm install nanoweb-http
+
+```bash
+npm install @nanoweb/http
 ```
 
 ## Usage
 
-### Core Fetch API
-The core fetch function allows you to make HTTP requests similar to the browser Fetch API:  
+### HTTP Status Codes
+
+Access standard HTTP status codes with descriptive names:
+
 ```js
-// Make a GET request
-import fetch from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await fetch(`${baseUrl}/data`)
-const data = await response.json()
-console.log(data)
+import HTTPStatusCode from '@nanoweb/http'
+
+console.log(HTTPStatusCode.CODE_200) // "OK"
+console.log(HTTPStatusCode.CODE_404) // "Not Found"
+console.log(HTTPStatusCode.CODE_500) // "Internal Server Error"
+
+// Get status text by code number
+console.log(HTTPStatusCode.get(200)) // "OK"
+console.log(HTTPStatusCode.get(418)) // "I'm a teapot"
 ```
-### HTTP Method Helpers
-Convenience methods for common HTTP operations:  
+
+### HTTP Headers
+
+Manage HTTP headers with multiple input formats:
+
 ```js
-// Make a POST request with JSON body
-import { post } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await post(`${baseUrl}/api/data`, { name: 'John' })
-console.log(response)
-```
-### HTTP Methods
-The package provides convenient GET method:  
-```js
-// GET request
-import { get } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await get(`${baseUrl}/data`)
-console.log(response)
-```
-The package provides convenient POST method:  
-```js
-// POST request with JSON body
-import { post } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await post(`${baseUrl}/api/data`, { message: 'Hello' })
-console.log(response)
-```
-The package provides convenient PUT method:  
-```js
-// PUT request
-import { put } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await put(`${baseUrl}/api/data/1`, { status: 'active' })
-console.log(response)
-```
-The package provides convenient PATCH method:  
-```js
-// PATCH request
-import { patch } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await patch(`${baseUrl}/api/data/1`, { partial: true })
-console.log(response)
-```
-The package provides convenient DELETE method:  
-```js
-// DELETE request
-import { del } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await del(`${baseUrl}/api/data/1`)
-console.log(response)
-```
-The package provides convenient HEAD method:  
-```js
-// HEAD request
-import { head } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await head(`${baseUrl}/data`)
-console.log(response)
-```
-The package provides convenient OPTIONS method:  
-```js
-// OPTIONS request
-import { options } from 'nanoweb-http'
-const response = await options(`${baseUrl}/data`)
-console.log(response)
-```
-### APIRequest Class
-Create an API client with base URL and default headers:  
-```js
-// Create API instance with base URL and default headers
-import { APIRequest } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const api = new APIRequest(`${baseUrl}/api/`, {
-	token: '123',
-	xCustomHeader: 'value'
+import { HTTPHeaders } from '@nanoweb/http'
+
+// From object
+const headers1 = new HTTPHeaders({
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer token'
 })
 
-// Make requests using the API instance
-const dataResponse = await api.get('data')
-const createResponse = await api.post('data', { name: 'John' })
-const updateResponse = await api.put('data/1', { status: 'active' })
-const deleteResponse = await api.delete('data/1')
-console.log(dataResponse, createResponse, updateResponse, deleteResponse)
+// From array of tuples
+const headers2 = new HTTPHeaders([
+  ['Content-Type', 'text/html'],
+  ['User-Agent', 'nanoweb-http/1.0']
+])
+
+// From string
+const headers3 = new HTTPHeaders('Content-Type: text/plain\nAccept: */*')
+
+// Methods
+headers1.set('X-Custom', 'value')
+console.log(headers1.get('Content-Type')) // "application/json"
+console.log(headers1.has('Authorization')) // true
+headers1.delete('Authorization')
+console.log(headers1.toString()) // "Content-Type: application/json\nX-Custom: value"
 ```
-### Response Handling
-Handle responses in various formats:  
+
+### HTTP Messages
+
+Work with HTTP request and response messages:
+
 ```js
-import fetch from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await fetch(`${baseUrl}/data`)
-console.log(response.ok, response.status)
+import { HTTPIncomingMessage, HTTPResponseMessage } from '@nanoweb/http'
 
-// Get response as text
-const text = await response.text()
-console.log(text)
+// Incoming message (request)
+const request = new HTTPIncomingMessage({
+  method: 'POST',
+  url: '/api/users',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ name: 'John' })
+})
 
-// Get response as JSON
-const json = await response.json()
-console.log(json)
+console.log(request.toString())
+// POST </api/users>
+// Content-Type: application/json
+//
+// {"name": "John"}
 
-// Get response as Buffer (binary)
-const buffer = await response.arrayBuffer()
-console.log(buffer)
-
-// Get raw stream for streaming responses
-const stream = response.stream()
-console.log(stream)
+// Response message
+const response = new HTTPResponseMessage({
+  url: '/api/users',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ id: 1, name: 'John' })
+})
 ```
+
 ### Error Handling
-Handle network and HTTP errors gracefully:  
+
+Custom error classes for handling HTTP and abort errors:
+
 ```js
-// Request to invalid endpoint
-import fetch from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
+import { AbortError, HTTPError } from '@nanoweb/http'
+
+// HTTP Error
 try {
-	const response = await fetch(`${baseUrl}/invalid`)
-	if (!response.ok) {
-		throw new Error(`HTTP error! status: ${response.status}`)
-	}
-	expect.fail('Request should have failed')
+  throw new HTTPError('Bad Request', 400)
 } catch (error) {
-	console.log(error)
+  console.log(error.name) // "HTTPError"
+  console.log(error.status) // 400
+  console.log(error.message) // "Bad Request"
+}
+
+// Abort Error
+try {
+  throw new AbortError('Request was aborted by user')
+} catch (error) {
+  console.log(error.name) // "AbortError"
+  console.log(error.message) // "Request was aborted by user"
 }
 ```
-### Advanced Features
 
-#### HTTP/2 Support
-Make requests using HTTP/2 protocol:  
-#### Self-Signed Certificates
-Handle self-signed certificates with APIRequest:  
-```js
-import { APIRequest } from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const api = new APIRequest(`${baseUrl}/api/`, {}, {
-	allowSelfSignedCertificates: true
-})
-const response = await api.get('data')
-console.log(response)
-```
-#### Custom Headers
-Add custom headers to requests:  
-```js
-import fetch from 'nanoweb-http'
-const baseUrl = 'http://localhost:3000'
-const response = await fetch(`${baseUrl}/data`, {
-	headers: {
-		'X-Custom-Header': 'value',
-		'Content-Type': 'application/json'
-	}
-})
-console.log(response)
-```
+## API
+
+### HTTPStatusCode
+
+Static class containing HTTP status codes with their descriptive messages.
+
+### HTTPHeaders
+
+Class for managing HTTP headers with the following methods:
+- `constructor(input)` - Create headers from object, array, or string
+- `get(name)` - Get header value
+- `set(name, value)` - Set header value
+- `has(name)` - Check if header exists
+- `delete(name)` - Delete header
+- `toString()` - Convert headers to string format
+- `static from(input)` - Create or return HTTPHeaders instance
+
+### HTTPMessage
+
+Base class for HTTP messages with:
+- `constructor(options)` - Create message with url, headers, and body
+- `toString()` - String representation of the message
+
+### HTTPIncomingMessage
+
+Extends HTTPMessage for incoming requests with HTTP method validation.
+
+### Errors
+
+- `AbortError` - Error thrown when requests are aborted
+- `HTTPError` - Error with HTTP status code for HTTP-related errors
+
+## License
+
+[ISC](LICENSE)

@@ -1,16 +1,13 @@
 {
 	"name": "@nanoweb/http",
-	"version": "1.1.0",
+	"version": "1.0.0",
 	"description": "",
 	"main": "./src/index.js",
 	"type": "module",
 	"exports": {
 		".": "./src/index.js",
-		"./client": "./src/client/index.js",
 		"./errors": "./src/errors/index.js",
-		"./middlewares": "./src/middlewares/index.js",
-		"./server": "./src/server/index.js",
-		"./types": "./src/types/index.js"
+		"./messages": "./src/messages/index.js"
 	},
 	"scripts": {
 		"test": "node --test",
@@ -22,16 +19,13 @@
 		"nanoweb-http"
 	],
 	"files": [
-		"lib",
+		"src",
 		"package.json",
 		"README.md"
 	],
 	"author": "ЯRаСлав YaRaSlove <support@yaro.page>",
 	"license": "ISC",
 	"devDependencies": {
-		"@eslint/js": "^9.27.0",
-		"eslint": "^9.27.0",
-		"globals": "^16.1.0",
 		"husky": "^9.1.7"
 	}
 }
