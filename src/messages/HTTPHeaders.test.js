@@ -48,8 +48,8 @@ test('HTTPHeaders methods', () => {
 	assert.equal(headers.has('Content-Type'), false)
 
 	// toString method
-	headers.set('Accept', 'application/json')
-	headers.set('User-Agent', 'nanoweb-http')
+	headers.set('accept', 'application/json')
+	headers.set('user-agent', 'nanoweb-http')
 	const str = headers.toString()
 	assert.match(str, /Accept: application\/json/)
 	assert.match(str, /User-Agent: nanoweb-http/)

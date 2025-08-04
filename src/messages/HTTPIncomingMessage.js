@@ -13,8 +13,16 @@ import HTTPMessage from "./HTTPMessage.js"
  * @property {string} [body] - Request body (optional)
  */
 
-export const HTTPMethods = ["GET", "POST", "PATCH", "PUT", "DELETE", "HEAD", "OPTIONS"]
-export const HTTPMethodValidator = Enum(...HTTPMethods)
+export const HTTPMethods = {
+	GET: "GET",
+	POST: "POST",
+	PATCH: "PATCH",
+	PUT: "PUT",
+	DELETE: "DELETE",
+	HEAD: "HEAD",
+	OPTIONS: "OPTIONS",
+}
+export const HTTPMethodValidator = Enum(...Object.keys(HTTPMethods))
 
 /**
  * HTTP Incoming Message class for both browser and Node.js environments

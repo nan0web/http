@@ -23,8 +23,8 @@ class HTTPStatusCode {
 	static CODE_302 = 'Found'
 	static CODE_303 = 'See Other'
 	static CODE_304 = 'Not Modified'
-	static CODE_305 = 'Use Proxy', // Deprecate
-	static CODE_306 = 'Switch Proxy', // Unused (historical
+	static CODE_305 = 'Use Proxy' // Deprecate
+	static CODE_306 = 'Switch Proxy' // Unused
 	static CODE_307 = 'Temporary Redirect'
 	static CODE_308 = 'Permanent Redirect'
 

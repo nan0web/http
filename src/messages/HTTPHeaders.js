@@ -2,6 +2,10 @@
  * @typedef {Record<string, string> | Array<[string, string]> | string} HTTPHeadersInput
  */
 
+const capitalizedKey = (key) => key.toLowerCase().split('-').map(word =>
+	word.charAt(0).toUpperCase() + word.slice(1)
+).join('-')
+
 /**
  * HTTP Headers class for managing request/response headers
  */
@@ -20,10 +24,10 @@ class HTTPHeaders {
 				return [name, value.join(": ")]
 			})
 		} else if (input && typeof input === 'object' && !Array.isArray(input)) {
-      // Convert object to array of entries
-      input = Object.entries(input)
-    }
-		this.#map = new Map(input)
+			// Convert object to array of entries
+			input = Object.entries(input)
+		}
+		this.#map = new Map(input.map(([name, value]) => ([name.toLowerCase(), value])))
 	}
 
 	/**
@@ -40,7 +44,7 @@ class HTTPHeaders {
 	 * @returns {boolean}
 	 */
 	has(name) {
-		return this.#map.has(name)
+		return this.#map.has(name.toLowerCase())
 	}
 
 	/**
@@ -49,7 +53,7 @@ class HTTPHeaders {
 	 * @returns {string|undefined}
 	 */
 	get(name) {
-		return this.#map.get(name)
+		return this.#map.get(name.toLowerCase())
 	}
 
 	/**
@@ -59,7 +63,7 @@ class HTTPHeaders {
 	 * @returns {this}
 	 */
 	set(name, value) {
-		this.#map.set(name, value)
+		this.#map.set(name.toLowerCase(), value)
 		return this
 	}
 
@@ -69,7 +73,13 @@ class HTTPHeaders {
 	 * @returns {boolean}
 	 */
 	delete(name) {
-		return this.#map.delete(name)
+		return this.#map.delete(name.toLowerCase())
+	}
+
+	toArray() {
+		return Array.from(this.#map.entries()).map(
+			([name, value]) => `${capitalizedKey(name)}: ${value}`
+		)
 	}
 
 	/**
@@ -77,9 +87,11 @@ class HTTPHeaders {
 	 * @returns {string}
 	 */
 	toString() {
-		return Array.from(this.#map.entries()).map(
-			([name, value]) => `${name}: ${value}`
-		).join("\n")
+		return this.toArray().join("\n")
+	}
+
+	toObject() {
+		return Object.fromEntries(this.toArray())
 	}
 
 	/**
