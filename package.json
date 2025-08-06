@@ -1,8 +1,9 @@
 {
-	"name": "@nanoweb/http",
+	"name": "@nan0web/http",
 	"version": "1.0.0",
 	"description": "",
 	"main": "./src/index.js",
+	"types": "./types/index.d.ts",
 	"type": "module",
 	"exports": {
 		".": "./src/index.js",
@@ -10,6 +11,7 @@
 		"./messages": "./src/messages/index.js"
 	},
 	"scripts": {
+		"build": "tsc",
 		"test": "node --test",
 		"prepare": "husky"
 	},
@@ -23,9 +25,10 @@
 		"package.json",
 		"README.md"
 	],
-	"author": "ЯRаСлав YaRaSlove <support@yaro.page>",
+	"author": "ЯRаСлав YaRaSLove <support@yaro.page>",
 	"license": "ISC",
 	"devDependencies": {
+		"@nan0web/types": "link:../types",
 		"husky": "^9.1.7"
 	}
 }

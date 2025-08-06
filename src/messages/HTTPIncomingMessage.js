@@ -1,4 +1,4 @@
-import { Enum } from "@nanoweb/types"
+import { Enum } from "@nan0web/types"
 import HTTPMessage from "./HTTPMessage.js"
 
 /**

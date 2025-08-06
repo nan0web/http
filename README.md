@@ -1,4 +1,4 @@
-# @nanoweb/http
+# @nan0web/http
 
 A lightweight HTTP library for JavaScript applications that provides utilities for working with HTTP messages, headers, status codes, and errors.
 
@@ -15,7 +15,7 @@ A lightweight HTTP library for JavaScript applications that provides utilities f
 ## Installation
 
 ```bash
-npm install @nanoweb/http
+npm install @nan0web/http
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ npm install @nanoweb/http
 Access standard HTTP status codes with descriptive names:
 
 ```js
-import HTTPStatusCode from '@nanoweb/http'
+import HTTPStatusCode from '@nan0web/http'
 
 console.log(HTTPStatusCode.CODE_200) // "OK"
 console.log(HTTPStatusCode.CODE_404) // "Not Found"
@@ -41,7 +41,7 @@ console.log(HTTPStatusCode.get(418)) // "I'm a teapot"
 Manage HTTP headers with multiple input formats:
 
 ```js
-import { HTTPHeaders } from '@nanoweb/http'
+import { HTTPHeaders } from '@nan0web/http'
 
 // From object
 const headers1 = new HTTPHeaders({
@@ -71,7 +71,7 @@ console.log(headers1.toString()) // "Content-Type: application/json\nX-Custom: v
 Work with HTTP request and response messages:
 
 ```js
-import { HTTPIncomingMessage, HTTPResponseMessage } from '@nanoweb/http'
+import { HTTPIncomingMessage, HTTPResponseMessage } from '@nan0web/http'
 
 // Incoming message (request)
 const request = new HTTPIncomingMessage({
@@ -104,7 +104,7 @@ const response = new HTTPResponseMessage({
 Custom error classes for handling HTTP and abort errors:
 
 ```js
-import { AbortError, HTTPError } from '@nanoweb/http'
+import { AbortError, HTTPError } from '@nan0web/http'
 
 // HTTP Error
 try {
