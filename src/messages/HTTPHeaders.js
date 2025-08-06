@@ -34,9 +34,13 @@ class HTTPHeaders {
 		let entries = []
 		if ("string" === typeof input) {
 			entries = input.split("\n").map(mapIntoRecord)
-		} else if (input && typeof input === 'object' && !Array.isArray(input)) {
+		}
+		else if (input && typeof input === 'object' && !Array.isArray(input)) {
 			// Convert object to array of entries
 			entries = Object.entries(input)
+		}
+		else {
+			entries = Array.from(input)
 		}
 		this.#map = new Map(entries.map(([name, value]) => ([name.toLowerCase(), value])))
 	}
