@@ -2,9 +2,22 @@
  * @typedef {Record<string, string> | Array<[string, string]> | string} HTTPHeadersInput
  */
 
+/**
+ * @param {string} key
+ * @returns {string}
+ */
 const capitalizedKey = (key) => key.toLowerCase().split('-').map(word =>
 	word.charAt(0).toUpperCase() + word.slice(1)
 ).join('-')
+
+/**
+ * @param {string} row
+ * @returns {Array<string, string>}
+ */
+const mapIntoRecord = row => {
+	const [name, ...value] = row.split(": ")
+	return [name, value.join(": ")]
+}
 
 /**
  * HTTP Headers class for managing request/response headers
@@ -18,16 +31,14 @@ class HTTPHeaders {
 	 * @param {HTTPHeadersInput} [input={}] - Headers input data
 	 */
 	constructor(input = {}) {
+		let entries = []
 		if ("string" === typeof input) {
-			input = input.split("\n").map(row => {
-				const [name, ...value] = row.split(": ")
-				return [name, value.join(": ")]
-			})
+			entries = input.split("\n").map(mapIntoRecord)
 		} else if (input && typeof input === 'object' && !Array.isArray(input)) {
 			// Convert object to array of entries
-			input = Object.entries(input)
+			entries = Object.entries(input)
 		}
-		this.#map = new Map(input.map(([name, value]) => ([name.toLowerCase(), value])))
+		this.#map = new Map(entries.map(([name, value]) => ([name.toLowerCase(), value])))
 	}
 
 	/**
@@ -76,8 +87,13 @@ class HTTPHeaders {
 		return this.#map.delete(name.toLowerCase())
 	}
 
+	/**
+	 * Returns headers as a mapped array.
+	 * @returns {string[]}
+	 */
 	toArray() {
-		return Array.from(this.#map.entries()).map(
+		const entries = Array.from(this.#map.entries())
+		return entries.map(
 			([name, value]) => `${capitalizedKey(name)}: ${value}`
 		)
 	}
@@ -90,8 +106,13 @@ class HTTPHeaders {
 		return this.toArray().join("\n")
 	}
 
+	/**
+	 * Returns a record with headers.
+	 * @returns {Record<string, string>}
+	 */
 	toObject() {
-		return Object.fromEntries(this.toArray())
+		const entries = this.toArray().map(mapIntoRecord)
+		return Object.fromEntries(entries)
 	}
 
 	/**

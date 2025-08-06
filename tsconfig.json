@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"target": "ES2024",
-		"module": "ESNext",
-		"lib": ["ES2024"],
+		"target": "esnext",
+		"module": "esnext",
+		"lib": ["esnext"],
 		"declaration": true,
 		"declarationMap": false,
 		"emitDeclarationOnly": true,

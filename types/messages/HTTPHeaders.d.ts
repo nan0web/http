@@ -45,14 +45,20 @@ declare class HTTPHeaders {
      * @returns {boolean}
      */
     delete(name: string): boolean;
+    /**
+     * Returns headers as a mapped array.
+     * @returns {string[]}
+     */
     toArray(): string[];
     /**
      * Returns string representation of headers
      * @returns {string}
      */
     toString(): string;
-    toObject(): {
-        [k: string]: any;
-    };
+    /**
+     * Returns a record with headers.
+     * @returns {Record<string, string>}
+     */
+    toObject(): Record<string, string>;
     #private;
 }
