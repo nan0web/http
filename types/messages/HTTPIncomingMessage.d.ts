@@ -7,7 +7,7 @@ export namespace HTTPMethods {
     let HEAD: string;
     let OPTIONS: string;
 }
-export const HTTPMethodValidator: any;
+export const HTTPMethodValidator: (value: any) => any;
 export default HTTPIncomingMessage;
 export type HTTPMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "HEAD" | "OPTIONS";
 export type HTTPIncomingMessageOptions = {

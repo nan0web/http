@@ -1,13 +1,6 @@
 import HTTPHeaders from './HTTPHeaders.js'
 
 /**
- * @typedef {Object} HTTPMessageOptions
- * @property {string} [url=""] - Request URL
- * @property {Record<string, string> | Array<[string, string]>} [headers=[]] - Request headers
- * @property {string | undefined} [body] - Request body (optional)
- */
-
-/**
  * Base HTTP Message class
  */
 class HTTPMessage {
@@ -22,7 +15,10 @@ class HTTPMessage {
 
 	/**
 	 * Creates a new HTTPMessage instance
-	 * @param {HTTPMessageOptions} [input={}] - HTTP message options
+	 * @param {object} [input] - HTTP message options
+	 * @param {string} [input.url=""]
+	 * @param {import("./HTTPHeaders.js").HTTPHeadersInput} [input.headers=[]]
+	 * @param {string} [input.body]
 	 */
 	constructor(input = {}) {
 		const {
@@ -30,7 +26,6 @@ class HTTPMessage {
 			headers = [],
 			body,
 		} = input
-
 		this.url = String(url)
 		this.headers = HTTPHeaders.from(headers)
 		this.body = body
@@ -49,7 +44,7 @@ class HTTPMessage {
 
 	/**
 	 * Creates HTTPMessage from input
-	 * @param {HTTPMessageOptions} input - Input data
+	 * @param {object} input - Input data
 	 * @returns {HTTPMessage}
 	 */
 	static from(input) {

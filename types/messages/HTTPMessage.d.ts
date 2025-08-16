@@ -1,39 +1,26 @@
 export default HTTPMessage;
-export type HTTPMessageOptions = {
-    /**
-     * - Request URL
-     */
-    url?: string | undefined;
-    /**
-     * - Request headers
-     */
-    headers?: Record<string, string> | [string, string][] | undefined;
-    /**
-     * - Request body (optional)
-     */
-    body?: string | undefined;
-};
-/**
- * @typedef {Object} HTTPMessageOptions
- * @property {string} [url=""] - Request URL
- * @property {Record<string, string> | Array<[string, string]>} [headers=[]] - Request headers
- * @property {string | undefined} [body] - Request body (optional)
- */
 /**
  * Base HTTP Message class
  */
 declare class HTTPMessage {
     /**
      * Creates HTTPMessage from input
-     * @param {HTTPMessageOptions} input - Input data
+     * @param {object} input - Input data
      * @returns {HTTPMessage}
      */
-    static from(input: HTTPMessageOptions): HTTPMessage;
+    static from(input: object): HTTPMessage;
     /**
      * Creates a new HTTPMessage instance
-     * @param {HTTPMessageOptions} [input={}] - HTTP message options
+     * @param {object} [input] - HTTP message options
+     * @param {string} [input.url=""]
+     * @param {import("./HTTPHeaders.js").HTTPHeadersInput} [input.headers=[]]
+     * @param {string} [input.body]
      */
-    constructor(input?: HTTPMessageOptions | undefined);
+    constructor(input?: {
+        url?: string | undefined;
+        headers?: import("./HTTPHeaders.js").HTTPHeadersInput | undefined;
+        body?: string | undefined;
+    } | undefined);
     /** @type {string} */
     url: string;
     /** @type {HTTPHeaders} */
