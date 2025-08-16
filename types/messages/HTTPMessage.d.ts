@@ -18,7 +18,7 @@ declare class HTTPMessage {
      */
     constructor(input?: {
         url?: string | undefined;
-        headers?: import("./HTTPHeaders.js").HTTPHeadersInput | undefined;
+        headers?: import("./HTTPHeaders.js").HTTPHeadersInput;
         body?: string | undefined;
     } | undefined);
     /** @type {string} */

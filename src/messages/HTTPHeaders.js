@@ -1,5 +1,5 @@
 /**
- * @typedef {Record<string, string> | Array<[string, string]> | string} HTTPHeadersInput
+ * @typedef {Map<string, string> | Array<[string, string]> | object | string} HTTPHeadersInput
  */
 
 /**

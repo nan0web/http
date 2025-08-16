@@ -1,5 +1,5 @@
 export default HTTPHeaders;
-export type HTTPHeadersInput = Record<string, string> | Array<[string, string]> | string;
+export type HTTPHeadersInput = Map<string, string> | Array<[string, string]> | object | string;
 /**
  * HTTP Headers class for managing request/response headers
  */
@@ -14,7 +14,7 @@ declare class HTTPHeaders {
      * Creates a new HTTPHeaders instance
      * @param {HTTPHeadersInput} [input={}] - Headers input data
      */
-    constructor(input?: HTTPHeadersInput | undefined);
+    constructor(input?: HTTPHeadersInput);
     /**
      * Gets the number of headers
      * @returns {number}
