@@ -51,8 +51,9 @@
 	"author": "ЯRаСлав YaRaSLove <support@yaro.page>",
 	"license": "ISC",
 	"devDependencies": {
-		"@nan0web/types": "^1.0.0",
 		"@nan0web/test": "^1.0.2",
+		"@nan0web/types": "^1.0.0",
+		"@nan0web/ui-cli": "^1.0.0",
 		"husky": "^9.1.7"
 	}
 }
