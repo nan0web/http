@@ -1,6 +1,6 @@
 {
 	"name": "@nan0web/http",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "HTTP classes for nan0web",
 	"main": "src/index.js",
 	"types": "types/index.d.ts",
