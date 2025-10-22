@@ -5,20 +5,41 @@
 	"main": "src/index.js",
 	"types": "types/index.d.ts",
 	"type": "module",
+	"files": [
+		"src/**/*.js",
+		"!src/**/*.test.js",
+		"types/**/*.d.ts"
+	],
 	"exports": {
-		".": "./src/index.js",
-		"./errors": "./src/errors/index.js",
-		"./messages": "./src/messages/index.js"
+		".": {
+			"import": "./src/index.js",
+			"types": "./types/index.d.ts"
+		},
+		"./errors": {
+			"import": "./src/errors/index.js",
+			"types": "./types/errors/index.d.ts"
+		},
+		"./messages": {
+			"import": "./src/messages/index.js",
+			"types": "./types/messages/index.d.ts"
+		}
 	},
 	"scripts": {
 		"build": "tsc",
-		"test": "node --test",
-		"prepare": "husky"
+		"test": "node --test \"src/**/*.test.js\"",
+		"test:coverage": "node --experimental-test-coverage --test-coverage-include=\"src/**/*.js\" --test-coverage-exclude=\"src/**/*.test.js\" --test \"src/**/*.test.js\"",
+		"test:coverage:collect": "nan0test coverage",
+		"test:docs": "node --test src/README.md.js",
+		"test:release": "node --test \"releases/**/*.test.js\"",
+		"test:status": "nan0test status --hide-name --debug",
+		"play": "node play/main.js",
+		"precommit": "npm test",
+		"prepush": "npm test",
+		"prepare": "husky",
+		"release": "nan0release publish",
+		"clean": "rm -rf .cache/ && rm -rf dist/",
+		"clean:modules": "rm -rf node_modules"
 	},
-	"files": [
-		"src/",
-		"types/"
-	],
 	"keywords": [
 		"http",
 		"headers",
@@ -30,7 +51,8 @@
 	"author": "ЯRаСлав YaRaSLove <support@yaro.page>",
 	"license": "ISC",
 	"devDependencies": {
-		"@nan0web/types": "link:../types",
+		"@nan0web/types": "^1.0.0",
+		"@nan0web/test": "^1.0.2",
 		"husky": "^9.1.7"
 	}
 }
